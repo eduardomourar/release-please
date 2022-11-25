@@ -170,7 +170,7 @@ interface TagIteratorOptions {
 
 export interface ReleaseOptions {
   draft?: boolean;
-  prerelease?: boolean;
+  prerelease?: boolean | string;
 }
 
 export interface GitHubRelease {

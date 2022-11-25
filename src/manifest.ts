@@ -91,7 +91,7 @@ export interface ReleaserConfig {
   releaseAs?: string;
   skipGithubRelease?: boolean; // Note this should be renamed to skipGitHubRelease in next major release
   draft?: boolean;
-  prerelease?: boolean;
+  prerelease?: boolean | string;
   draftPullRequest?: boolean;
   component?: string;
   packageName?: string;
@@ -142,7 +142,7 @@ interface ReleaserConfigJson {
   'release-as'?: string;
   'skip-github-release'?: boolean;
   draft?: boolean;
-  prerelease?: boolean;
+  prerelease?: boolean | string;
   'draft-pull-request'?: boolean;
   label?: string;
   'release-label'?: string;
@@ -177,7 +177,7 @@ export interface ManifestOptions {
   skipLabeling?: boolean;
   sequentialCalls?: boolean;
   draft?: boolean;
-  prerelease?: boolean;
+  prerelease?: boolean | string;
   draftPullRequest?: boolean;
   groupPullRequestTitlePattern?: string;
   releaseSearchDepth?: number;
@@ -281,7 +281,7 @@ export class Manifest {
   private bootstrapSha?: string;
   private lastReleaseSha?: string;
   private draft?: boolean;
-  private prerelease?: boolean;
+  private prerelease?: boolean | string;
   private draftPullRequest?: boolean;
   private groupPullRequestTitlePattern?: string;
   readonly releaseSearchDepth: number;
@@ -326,6 +326,7 @@ export class Manifest {
     this.targetBranch = targetBranch;
     this.repositoryConfig = repositoryConfig;
     this.releasedVersions = releasedVersions;
+    this.prerelease = manifestOptions?.prerelease;
     this.manifestPath =
       manifestOptions?.manifestPath || DEFAULT_RELEASE_PLEASE_MANIFEST;
     this.separatePullRequests =
@@ -1067,7 +1068,7 @@ export class Manifest {
             pullRequest,
             draft: config.draft ?? this.draft,
             prerelease:
-              config.prerelease &&
+              !!(config.prerelease ?? this.prerelease) &&
               (!!release.tag.version.preRelease ||
                 release.tag.version.major === 0),
           });
@@ -1207,6 +1208,7 @@ export class Manifest {
           github: this.github,
           path,
           targetBranch: this.targetBranch,
+          prerelease: this.prerelease,
         });
         this._strategiesByPath[path] = strategy;
       }

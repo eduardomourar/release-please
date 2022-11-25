@@ -60,6 +60,7 @@ export interface StrategyFactoryOptions extends ReleaserConfig {
   github: GitHub;
   path?: string;
   targetBranch?: string;
+  prerelease?: boolean | string;
 }
 
 const releasers: Record<string, ReleaseBuilder> = {
@@ -114,6 +115,8 @@ export async function buildStrategy(
     type: options.versioning,
     bumpMinorPreMajor: options.bumpMinorPreMajor,
     bumpPatchForMinorPreMajor: options.bumpPatchForMinorPreMajor,
+    prerelease:
+      typeof options.prerelease === 'string' ? options.prerelease : undefined,
   });
   const changelogNotes = buildChangelogNotes({
     type: options.changelogType || 'default',

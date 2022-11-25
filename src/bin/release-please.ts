@@ -84,6 +84,7 @@ interface ManifestConfigArgs {
 interface ReleaseArgs {
   draft?: boolean;
   prerelease?: boolean;
+  prereleaseIdentifier?: string;
   releaseLabel?: string;
   snapshotLabel?: string;
   label?: string;
@@ -206,9 +207,13 @@ function releaseOptions(yargs: yargs.Argv): yargs.Argv {
     .option('prerelease', {
       describe:
         'mark release that have prerelease versions ' +
-        'as as a prerelease on Github',
+        'as a prerelease on Github',
       type: 'boolean',
       default: false,
+    })
+    .option('prerelease-identifier', {
+      describe: 'set prerelease identifier to be used (e.g. `beta`, `alpha`)',
+      type: 'string',
     })
     .option('label', {
       default: 'autorelease: pending',
@@ -544,7 +549,7 @@ const createReleaseCommand: yargs.CommandModule<{}, CreateReleaseArgs> = {
           component: argv.component,
           packageName: argv.packageName,
           draft: argv.draft,
-          prerelease: argv.prerelease,
+          prerelease: argv.prereleaseIdentifier || argv.prerelease,
           includeComponentInTag: argv.monorepoTags,
           includeVInTag: argv.includeVInTags,
         },
@@ -707,7 +712,7 @@ const bootstrapCommand: yargs.CommandModule<{}, BootstrapArgs> = {
       component: argv.component,
       packageName: argv.packageName,
       draft: argv.draft,
-      prerelease: argv.prerelease,
+      prerelease: argv.prereleaseIdentifier || argv.prerelease,
       draftPullRequest: argv.draftPullRequest,
       bumpMinorPreMajor: argv.bumpMinorPreMajor,
       bumpPatchForMinorPreMajor: argv.bumpPatchForMinorPreMajor,
@@ -859,6 +864,12 @@ function extractManifestOptions(
   }
   if ('draftPullRequest' in argv && argv.draftPullRequest !== undefined) {
     manifestOptions.draftPullRequest = argv.draftPullRequest;
+  }
+  if ('prerelease' in argv && argv.prerelease !== undefined) {
+    manifestOptions.prerelease = argv.prerelease;
+  }
+  if ('prereleaseIdentifier' in argv && argv.prereleaseIdentifier) {
+    manifestOptions.prerelease = argv.prereleaseIdentifier;
   }
   return manifestOptions;
 }

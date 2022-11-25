@@ -24,9 +24,12 @@ import {ConventionalCommit} from '../commit';
 import {Version} from '../version';
 import {logger as defaultLogger, Logger} from '../util/logger';
 
+const PRE_RELEASE_PATTERN = /\.(\d+)/;
+
 interface DefaultVersioningStrategyOptions {
   bumpMinorPreMajor?: boolean;
   bumpPatchForMinorPreMajor?: boolean;
+  prerelease?: string;
   logger?: Logger;
 }
 
@@ -38,6 +41,7 @@ interface DefaultVersioningStrategyOptions {
 export class DefaultVersioningStrategy implements VersioningStrategy {
   readonly bumpMinorPreMajor: boolean;
   readonly bumpPatchForMinorPreMajor: boolean;
+  readonly prerelease?: string;
   protected logger: Logger;
   /**
    * Create a new DefaultVersioningStrategy
@@ -50,6 +54,7 @@ export class DefaultVersioningStrategy implements VersioningStrategy {
   constructor(options: DefaultVersioningStrategyOptions = {}) {
     this.bumpMinorPreMajor = options.bumpMinorPreMajor === true;
     this.bumpPatchForMinorPreMajor = options.bumpPatchForMinorPreMajor === true;
+    this.prerelease = options.prerelease;
     this.logger = options.logger ?? defaultLogger;
   }
 
@@ -113,6 +118,24 @@ export class DefaultVersioningStrategy implements VersioningStrategy {
    * @returns {Version} The next version
    */
   bump(version: Version, commits: ConventionalCommit[]): Version {
-    return this.determineReleaseType(version, commits).bump(version);
+    const bumpedVersion = this.determineReleaseType(version, commits).bump(
+      version
+    );
+    if (this.prerelease) {
+      const match = bumpedVersion.preRelease?.match(PRE_RELEASE_PATTERN);
+      let prereleaseVersion = `${this.prerelease}.1`;
+      if (match) {
+        const preNumber = Number(match[1]);
+        prereleaseVersion = `${this.prerelease}.${preNumber + 1}`;
+      }
+      return new Version(
+        bumpedVersion.major,
+        bumpedVersion.minor,
+        bumpedVersion.patch,
+        prereleaseVersion,
+        bumpedVersion.build
+      );
+    }
+    return bumpedVersion;
   }
 }

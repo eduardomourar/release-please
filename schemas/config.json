@@ -60,7 +60,7 @@
         },
         "prerelease": {
           "description": "Create the GitHub release as prerelease. Defaults to `false`.",
-          "type": "boolean"
+          "type": ["boolean", "string"]
         },
         "draft-pull-request": {
           "description": "Open the release pull request in draft mode. Defaults to `false`.",

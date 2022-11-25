@@ -99,7 +99,7 @@ function mockCreateRelease(
     sha: string;
     tagName: string;
     draft?: boolean;
-    prerelease?: boolean;
+    prerelease?: boolean | string;
     duplicate?: boolean;
   }[]
 ): sinon.SinonStub {
@@ -4792,7 +4792,7 @@ describe('Manifest', () => {
         {
           '.': {
             releaseType: 'node',
-            prerelease: true,
+            prerelease: 'beta',
           },
         },
         {
@@ -5683,7 +5683,7 @@ describe('Manifest', () => {
         {
           '.': {
             releaseType: 'node',
-            prerelease: true,
+            prerelease: 'beta',
           },
         },
         {
